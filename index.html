@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BET-NEXUS | Premium Sports Betting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* প্রিমিয়াম ডার্ক ও নিয়ন গ্রিন থিম */
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #151f32;
+            --accent-color: #00ff87;
+            --text-main: #ffffff;
+            --text-muted: #8a99ad;
+            --danger: #ff4a4a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* নেভিগেশন বার */
+        header {
+            background-color: var(--bg-secondary);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #22324d;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .logo span { color: var(--accent-color); }
+
+        .nav-buttons { display: flex; gap: 10px; align-items: center; }
+        
+        .btn {
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-outline { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
+        .btn-outline:hover { background: var(--accent-color); color: var(--bg-primary); }
+        .btn-primary { background: var(--accent-color); color: var(--bg-primary); }
+        .btn-primary:hover { opacity: 0.9; box-shadow: 0 0 10px rgba(0, 255, 135, 0.4); }
+
+        .user-balance-box {
+            background: #1e2d4a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #2d3f61;
+        }
+        .user-balance-box i { color: var(--accent-color); }
+
+        /* মেইন লেআউট */
+        .main-container {
+            display: flex;
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+            gap: 20px;
+        }
+
+        .content-area { flex: 1; }
+
+        /* ব্যানার */
+        .promo-banner {
+            background: linear-gradient(135deg, #1a263f 0%, #0d1527 100%);
+            border-left: 4px solid var(--accent-color);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .promo-banner h2 { margin: 0 0 10px 0; font-size: 24px; }
+        .promo-banner p { margin: 0; color: var(--text-muted); font-size: 14px; }
+
+        /* ম্যাচ টেবিল ইউআই */
+        .section-title { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: var(--accent-color); }
+
+        .match-card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #1f2e47;
+        }
+        .match-teams { display: flex; flex-direction: column; gap: 5px; }
+        .team { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+        .match-meta { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+
+        .odds-pool { display: flex; gap: 10px; }
+        .odds-btn {
+            background: #1e2d4a;
+            border: 1px solid #2d3f61;
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            min-width: 70px;
+            transition: 0.2s;
+        }
+        .odds-btn:hover { border-color: var(--accent-color); background: #24375b; }
+        .odds-btn span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+        .odds-btn strong { color: var(--accent-color); font-size: 14px; }
+
+        /* পপ-আপ মডাল */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 7, 13, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #243552;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 20px; cursor: pointer; color: var(--text-muted);
+        }
+        .close-modal:hover { color: #fff; }
+
+        .modal-box h3 { margin-top: 0; font-size: 22px; text-align: center; margin-bottom: 20px; }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 11px; border-radius: 6px;
+            border: 1px solid #243552; background: var(--bg-primary);
+            color: #fff; box-sizing: border-box; font-size: 14px;
+        }
+        .form-group input:focus { border-color: var(--accent-color); outline: none; }
+
+        .switch-form-link { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 15px; }
+        .switch-form-link span { color: var(--accent-color); cursor: pointer; }
+
+        .notice-card {
+            background: #201616; border: 1px solid #422222;
+            padding: 12px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; color: #ffbcbc;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- হেডার বা নেভবার -->
+    <header>
+        <div class="logo">BET-<span>NEXUS</span></div>
+        <div class="nav-buttons">
+            <div class="user-balance-box" id="user-balance-display">
+                <i class="fa-solid fa-wallet"></i> Wallet: <strong id="current-balance">0.00</strong> BDT
+            </div>
+            <button class="btn btn-outline" id="login-nav-btn" onclick="openModal('login-modal')">লগইন</button>
+            <button class="btn btn-primary" id="signup-nav-btn" onclick="openModal('signup-modal')">রেজিস্ট্রেশন</button>
+            <button class="btn btn-primary" id="deposit-nav-btn" style="display:none;" onclick="openModal('deposit-modal')"><i class="fa-solid fa-plus"></i> ডিপোজিট</button>
+            <button class="btn btn-outline" id="logout-nav-btn" style="display:none;" onclick="handleLogout()">লগআউট</button>
+        </div>
+    </header>
+
+    <!-- মেইন কন্টেন্ট এরিয়া -->
+    <div class="main-container">
+        <div class="content-area">
+            <!-- প্রোমো ব্যানার -->
+            <div class="promo-banner">
+                <h2>⚽ FIFA WORLD CUP 2026 - LIVE BETTING</h2>
+                <p>সবচেয়ে ফাস্ট ডিপোজিট এবং হাইয়েস্ট ওডস (Odds) রেট। এখনই অ্যাকাউন্ট খুলে বাজি ধরা শুরু করুন!</p>
+            </div>
+
+            <!-- লাইভ ম্যাচ লিস্ট -->
+            <div class="section-title">
+                <i class="fa-solid fa-circle-dot" style="color: var(--danger); font-size: 12px;"></i> লাইভ স্পোর্টস ওডস
+            </div>
+
+            <div id="matches-container">
+                <div class="match-card">
+                    <div class="match-teams">
+                        <div class="match-meta">FIFA World Cup • Live</div>
+                        <div class="team"><i class="fa-solid fa-font-awesome" style="color:#38bdf8"></i> Argentina</div>
+                        <div class="team"><i class="fa-solid fa-font-awesome" style="color:#fbbf24"></i> France</div>
+                    </div>
+                    <div class="odds-pool">
+                        <button class="odds-btn" onclick="placeBetPlaceHolder('Argentina')"><span>1 (Home)</span><strong>1.85</strong></button>
+                        <button class="odds-btn" onclick="placeBetPlaceHolder('Draw')"><span>X (Draw)</span><strong>3.20</strong></button>
+                        <button class="odds-btn" onclick="placeBetPlaceHolder('France')"><span>2 (Away)</span><strong>2.10</strong></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== পপ-আপ মডালসমূহ ===== -->
+
+    <!-- ১. লগইন মডাল -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal('login-modal')">&times;</span>
+            <h3>BET-NEXUS লগইন</h3>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>ইমেইল অ্যাড্রেস</label>
+                    <input type="email" id="login-email" required placeholder="example@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>পাসওয়ার্ড</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">প্রবেশ করুন</button>
+                <div class="switch-form-link">নতুন অ্যাকাউন্ট? <span onclick="switchModal('login-modal', 'signup-modal')">রেজিস্ট্রেশন করুন</span></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ২. সাইন-আপ মডাল -->
+    <div class="modal-overlay" id="signup-modal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal('signup-modal')">&times;</span>
+            <h3>নতুন অ্যাকাউন্ট</h3>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label>ইউজারনেম</label>
+                    <input type="text" id="signup-username" required placeholder="username123">
+                </div>
+                <div class="form-group">
+                    <label>ইমেইল অ্যাড্রেস</label>
+                    <input type="email" id="signup-email" required placeholder="name@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>পাসওয়ার্ড</label>
+                    <input type="password" id="signup-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">অ্যাকাউন্ট তৈরি করুন</button>
+                <div class="switch-form-link">অলরেডি অ্যাকাউন্ট আছে? <span onclick="switchModal('signup-modal', 'login-modal')">লগইন করুন</span></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ৩. ডিপোজিট মডাল -->
+    <div class="modal-overlay" id="deposit-modal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal('deposit-modal')">&times;</span>
+            <h3>💸 ওয়ালেট ডিপোজিট</h3>
+            <div class="notice-card">
+                <strong>নিয়ম:</strong> নিচের নাম্বারে "Send Money" করে TrxID এবং টাকার পরিমাণ দিয়ে রিকোয়েস্ট সাবমিট করুন। 
+                <br><br>
+                🔸 বিকাশ (Personal): 01310387323 <br>
+                🔸 নগদ (Personal): 01310387323
+            </div>
+            <form id="deposit-form">
+                <div class="form-group">
+                    <label>পেমেন্ট মেথড সিলেক্ট করুন</label>
+                    <select id="deposit-method">
+                        <option value="bKash">বিকাশ (bKash)</option>
+                        <option value="Nagad">নগদ (Nagad)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>টাকার পরিমাণ (BDT)</label>
+                    <input type="number" id="deposit-amount" required placeholder="সর্বনিম্ন ৫০০ টাকা">
+                </div>
+                <div class="form-group">
+                    <label>ট্রানজেকশন আইডি (TrxID)</label>
+                    <input type="text" id="deposit-trxid" required placeholder="TrxID892X01">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">ডিপোজিট রিকোয়েস্ট পাঠান</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+        // তোমার রেন্ডার লাইভ ইউআরএল 
+        const BASE_URL = 'https://betting-backend-f0b6.onrender.com';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            checkUserSession();
+            loadLiveMatches(); // পেজ লোড হওয়ার সময় লাইভ ম্যাচ লোড হবে
+        });
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function switchModal(closeId, openId) { closeModal(closeId); openModal(openId); }
+
+        function checkUserSession() {
+            const token = localStorage.getItem('userToken');
+            if(token) {
+                document.getElementById('login-nav-btn').style.display = 'none';
+                document.getElementById('signup-nav-btn').style.display = 'none';
+                document.getElementById('user-balance-display').style.display = 'flex';
+                document.getElementById('deposit-nav-btn').style.display = 'inline-block';
+                document.getElementById('logout-nav-btn').style.display = 'inline-block';
+            } else {
+                document.getElementById('login-nav-btn').style.display = 'inline-block';
+                document.getElementById('signup-nav-btn').style.display = 'inline-block';
+                document.getElementById('user-balance-display').style.display = 'none';
+                document.getElementById('deposit-nav-btn').style.display = 'none';
+                document.getElementById('logout-nav-btn').style.display = 'none';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('userToken');
+            alert('সফলভাবে লগআউট হয়েছেন।');
+            checkUserSession();
+        }
+
+        // ⚽ ব্যাকএন্ড থেকে আসল লাইভ ম্যাচ ডেটা টানার ফাংশন
+        async function loadLiveMatches() {
+            try {
+                // তোমার ব্যাকএন্ড রুট /api/bets এর সাথে মিলানো হয়েছে
+                const res = await fetch(`${BASE_URL}/api/bets/matches`);
+                if (!res.ok) throw new Error('ম্যাচ ডেটা পাওয়া যায়নি');
+                const matches = await res.json();
+                
+                const container = document.getElementById('matches-container');
+                if(matches && matches.length > 0) {
+                    container.innerHTML = ''; // ডামি ডেটা মুছে ফেলা হবে
+                    matches.forEach(match => {
+                        container.innerHTML += `
+                            <div class="match-card">
+                                <div class="match-teams">
+                                    <div class="match-meta">${match.tournament || 'FIFA World Cup'} • Live</div>
+                                    <div class="team"><i class="fa-solid fa-font-awesome" style="color:#38bdf8"></i> ${match.team_home}</div>
+                                    <div class="team"><i class="fa-solid fa-font-awesome" style="color:#fbbf24"></i> ${match.team_away}</div>
+                                </div>
+                                <div class="odds-pool">
+                                    <button class="odds-btn" onclick="placeBet('${match.id}', 'home')"><span>1 (Home)</span><strong>${match.odds_home}</strong></button>
+                                    <button class="odds-btn" onclick="placeBet('${match.id}', 'draw')"><span>X (Draw)</span><strong>${match.odds_draw}</strong></button>
+                                    <button class="odds-btn" onclick="placeBet('${match.id}', 'away')"><span>2 (Away)</span><strong>${match.odds_away}</strong></button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (err) {
+                console.log('লাইভ ম্যাচ লোড করতে সমস্যা হয়েছে, ব্যাকএন্ড ক্রন জব চেক করুন।');
+            }
+        }
+
+        // সাইন-আপ সাবমিট হ্যান্ডলার
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.error || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে!');
+                
+                alert('অ্যাকাউন্ট তৈরি সফল হয়েছে!');
+                if(data.token) localStorage.setItem('userToken', data.token);
+                closeModal('signup-modal');
+                checkUserSession();
+            } catch (err) {
+                alert(err.message || 'সার্ভার কানেকশন ফেইল্ড!');
+            }
+        });
+
+        // লগইন সাবমিট হ্যান্ডলার
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.error || 'লগইন ব্যর্থ হয়েছে!');
+                
+                alert('লগইন সফল হয়েছে!');
+                if(data.token) localStorage.setItem('userToken', data.token);
+                closeModal('login-modal');
+                checkUserSession();
+            } catch (err) {
+                alert('সার্ভার কানেকশন ফেইল্ড!');
+            }
+        });
+
+        // ডিপোজিট সাবমিট হ্যান্ডলার
+        document.getElementById('deposit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const method = document.getElementById('deposit-method').value;
+            const amount = document.getElementById('deposit-amount').value;
+            const txid = document.getElementById('deposit-trxid').value;
+            const token = localStorage.getItem('userToken');
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/wallet/deposit`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ method, amount, txid })
+                });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.error || 'ডিপোজিট রিকোয়েস্ট ব্যর্থ!');
+                
+                alert('ডিপোজিট রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!');
+                closeModal('deposit-modal');
+                document.getElementById('deposit-form').reset();
+            } catch (err) {
+                alert(err.message || 'সার্ভার রেসপন্স করছে না!');
+            }
+        });
+
+        function placeBet(matchId, prediction) {
+            const token = localStorage.getItem('userToken');
+            if(!token) {
+                alert('বাজি ধরতে প্রথমে লগইন অথবা রেজিস্ট্রেশন করুন!');
+                openModal('login-modal');
+            } else {
+                alert(`ম্যাচ আইডি ${matchId} তে ${prediction} এর ওপর বাজি ধরার রিকোয়েস্ট পাঠানো হচ্ছে...`);
+                // এখানে তোমার প্রয়োজন অনুযায়ী বাজি ধরার fetch রিকোয়েস্ট যোগ করতে পারো
+            }
+        }
+    </script>
+</body>
+</html>
